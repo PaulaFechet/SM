@@ -1,0 +1,35 @@
+body {
+    background-image: url('/static/img/p1.jpeg');
+    background-position: center center; 
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-color:#464646;
+    
+    font: 18px/23px "Cantarell", sans-serif;
+    color: #ffffff;
+    min-height: 100vh;
+    padding-bottom:58px; 
+    position: relative;
+    padding-top: 3%;
+  }
+
+  .background {
+      width: 600;
+      height: 700;
+      color:white;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+  }
+
+  .buton:hover{
+    background-color: grey;
+  }
+
+  .butoane{
+    color: white;
+  }
+
+  #input{
+    width: 400px;
+  }
