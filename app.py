@@ -23,12 +23,15 @@ GPIO.setup(dht11, GPIO.IN)
 
 app = Flask(__name__)
 
+
 def read_temp():
+    # citeste temperatura de la senzor
     humidity, temperature = Adafruit_DHT.read_retry(type, dht11)
     temp = str(temperature)
     return temp
 
 def read_umid():
+    # citeste umiditatea de la senzor
     humidity, temperature = Adafruit_DHT.read_retry(type, dht11)
     umidit = str(humidity)
     return umidit
@@ -37,6 +40,7 @@ def read_umid():
 class CheForm(Form):
     email = StringField('Email',[validators.Length(min =1,max=50)])
 
+# se primeste adresa de email de pe interfata apoi se scrie in fisier
 @app.route("/",methods = ['GET','POST'])
 def home_1():
     form = CheForm(request.form)
@@ -54,6 +58,7 @@ def home():
 def temp():
     temperatura = read_temp()
     if request.method == 'POST' :
+        # pornire script de scriere pe diplay
         cmd = "python3 digit_temp.py"
         os.system(cmd)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
         return redirect(url_for('temp'))
@@ -61,6 +66,7 @@ def temp():
 
 @app.route("/umiditate")
 def umiditate():
+    # se apeleaza functia care returneaza umiditatea de a senzor apoi se trimite pe interfata pentru afisare
     umiditate = read_umid()
     return render_template('umiditate.html',umiditate=umiditate)
 
@@ -69,20 +75,12 @@ def printfile (mesaj):
     file.write(mesaj)
     file.close()
 
-# @app.route("/alarma",methods = ['GET','POST'])
-# def alarma():
-#     form = CheForm(request.form)
-#     if request.method == 'POST' and form.validate():
-#         mesaj = form.email.data
-#         printfile(mesaj)
-#         msg = "Alarma a fost pornita!"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-#         return redirect(url_for('alarma',msg=msg))
-#     return render_template('alarma.html',form=form)
 
 @app.route("/alarma")
 def alarma():
     return render_template('alarma.html')
 
+# se primeste adresa de email de pe interfata apoi se scrie in fisier
 @app.route("/register",methods = ['GET','POST'])
 def register():
     form = CheForm(request.form)
@@ -98,13 +96,16 @@ def alarma_on():
     cmd = "sudo python alarma.py"
     os.system(cmd)
     msg = "Alarma a fost pornita!"
+    # se trimite mesajul de pornire alarma pe interfata
     return render_template('alarma.html',msg=msg)
 
 @app.route("/alarma-off")
 def alarma_off():
+    # se opreste alarma
     msg = "Alarma a fost oprita!"
     cmd=" ps aux | grep -ie 'python alarma.py' | awk '{print $2}' | xargs sudo kill -9"
     os.system(cmd)
+    # se trimite mesajul de oprire alarma pe interfata
     return render_template('alarma.html',msg=msg)
 
 @app.route("/led")
@@ -113,7 +114,7 @@ def led():
 
 @app.route("/led-on")
 def led_on():
- # Ruleaza scriptul de start led
+    # Ruleaza scriptul de start led
     cmd = 'python3 start.py'
     os.system(cmd)
     msg = "Becul a fost pornit!"
