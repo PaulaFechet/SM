@@ -1,21 +1,22 @@
 import RPi.GPIO as GPIO
-import Adafruit_DHT
+import Adafruit_DHT #import librarie pentru a calcula umiditatea si temperatura
 import time
 import math as math
 
-GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BCM) #alegere pini
 dataPin = 18
 latchPin = 15
 clockPin = 14
 
-GPIO.setup(dataPin, GPIO.OUT)
+GPIO.setup(dataPin, GPIO.OUT) #setare pini
 GPIO.setup(latchPin, GPIO.OUT)
 GPIO.setup(clockPin, GPIO.OUT)
 
-GPIO.output(dataPin, GPIO.LOW)
+GPIO.output(dataPin, GPIO.LOW) #configurare pini
 GPIO.output(latchPin, GPIO.LOW)
 GPIO.output(clockPin, GPIO.LOW)
 
+#initializare variabile pentru afisarea pe digit
 g = 0b01000000
 dot = 0b10000000
 zero = 191 #0b10111111
@@ -46,16 +47,16 @@ def Digit(x):
 	if x == 1:
 		digit = 14 #0b00001110 activeaza primul digit punand pe 0 catodul corespunzator acestuia 
 	elif x == 2:
-        	digit = 13 #0b00001101
+        	digit = 13 #0b00001101 activeaza al doilea digit punand pe 0 catodul corespunzator
 	elif x == 3:
-		digit = 11 #0b00001011
+		digit = 11 #0b00001011 activeaza al treilea digit
 	elif x == 4:
-		digit = 7 #0b00000111
+		digit = 7 #0b00000111 activeaza al patrulea digit
 	elif x == 5:
-        	digit = 0 #0b00000000
+        	digit = 0 #0b00000000 activeaza punctul
 
 
-def shift(buffer):
+def shift(buffer): #functie de shiftare ce face posibila afisarea unor valori diferite pe fiecare digit
 
 	global digit
 
@@ -67,7 +68,7 @@ def shift(buffer):
 
 	for i in range(0,8):
 		GPIO.output(dataPin, (128 & (buffer << i)))
-		GPIO.output(clockPin, GPIO.HIGH) 
+		GPIO.output(clockPin, GPIO.HIGH)
 		time.sleep(0.001)
         	GPIO.output(clockPin, GPIO.LOW)
 
@@ -75,7 +76,7 @@ def shift(buffer):
 	time.sleep(0.001)
     	GPIO.output(latchPin, GPIO.LOW)
 
-def afla_nr(x):
+def afla_nr(x): #functie ce determina ce leduri se vor aprinde in functie de numarul dat ca parametru
 	nr = 0
 	global zero_no_dot
 	global one_no_dot
@@ -109,7 +110,9 @@ def afla_nr(x):
 		nr = nine_no_dot
 	return nr
 
-
+# functie ce afiseaza temperatura pe digit
+# formatul este xy.z
+#primul digit ramane nefolosit
 def display(temperature):
 	x = math.floor((temperature *10) /100)
 	a = afla_nr(x)
@@ -123,29 +126,28 @@ def display(temperature):
 	while i>0:
 		i = i-1
 		if temperature < 0:
-			Digit(1)
+			Digit(1) #daca temperatura e negativa, se activeaza ledul din mijol pentru a arata semnul minus
 			shift(g)
 			time.sleep(0.0000001)
-		Digit(2)
+		Digit(2) #se afiseaza cifra zecilor
 		shift(a)
 		time.sleep(0.0000001)
-		Digit(3)
+		Digit(3) #se afiseaza cifra unitatilor
 		shift(b)
 		time.sleep(0.0000001)
-		shift(dot)
+		shift(dot)  #se afiseaza punct
 		time.sleep(0.0000001)
-		Digit(4)
+		Digit(4) #se afiseaza zecimea
 		shift(c)
 		time.sleep(0.0000001)
-		
-	
-def printfile (str):
+
+def printfile (str): # functie afisare fisier temperatura +umiditate
         file = open("file.txt","w")
 	file.write(str)
 	file.close()
 
 
-def readfile():
+def readfile(): #functie citire fisier
 	file =open("file.txt","r")
 	str = ''
 	str += file.read()
@@ -153,18 +155,18 @@ def readfile():
 	return str
 
 
-def temp_print(temp):
+def temp_print(temp): #functie scriere in fisier separat temperatura, pentru a outea fi citita si afisata pe digit
 	file = open("temp.txt", "w")
 	file.write(temp)
 	file.close()
 
 try:
 	while True:
-		file = open("temp.txt", "r")
+		file = open("temp.txt", "r") #citire temperatura din fisier
 		temp = ''
 		temp +=file.read()
 		temperature = float(temp)
-		display(temperature)
+		display(temperature) #apel functie afisare temperatura pe display
 		file.close()
 except KeyboardInterrupt:
 	pass

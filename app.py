@@ -1,4 +1,5 @@
 
+
 from flask import Flask, render_template,flash,url_for,session,request,logging,redirect
 from http import cookies
 import time
@@ -125,6 +126,25 @@ def led_off():
     os.system(cmd)
     msg = "Becul a fost oprit!"
     return render_template('led.html',msg=msg)
+
+@app.route("/digit_temp")
+def temp_digit():
+	#Ruleaza scriptul de afisare temperatura
+	cmd = "sudo python senzor_temp.py"
+	t = threading.Thread(target=os.system, args=(cmd,))
+	t.start()
+	cmd = "sudo python digit_temp.py"
+	t2 = threading.Thread(target=os.system, args=(cmd,))
+	t2.start()
+	return render_template('temperatura.html')
+
+@app.route("/stop_display")
+def stop_display():
+	cmd = " ps aux | grep -ie 'python senzor_temp.py' | awk '{print $2}' | xargs sudo kill -9"
+	os.system(cmd)
+	cmd = " ps aux | grep -ie 'python digit_temp.py' | awk '{print $2}' | xargs sudo kill -9"
+	os.system(cmd)
+	return render_template("temperatura.html")
 
 if  __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True)
